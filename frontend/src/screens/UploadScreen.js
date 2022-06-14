@@ -1,6 +1,5 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useEffect, useRef} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import axios from 'axios'
 import { Alert, Image, Button, Container } from 'react-bootstrap'
 import { uploadImage } from '../actions'
 import { UPLOAD_IMAGE_RESET } from '../constants'
@@ -8,11 +7,14 @@ import 'tui-image-editor/dist/tui-image-editor.css';
 import ImageEditor from '@toast-ui/react-image-editor';
 import Loader from '../components.js/Loader'
 function UploadScreen() {
+
+    // change load button text
     const locale = {
         Load: 'Select Image'
     }
-
+    //create ref for toast-ui image editor
     const editorRef = useRef();
+    // white theme settings
     var whiteTheme = {
         'common.bi.image': 'https://uicdn.toast.com/toastui/img/tui-image-editor-bi.png',
         'common.bisize.width': '251px',
@@ -89,9 +91,9 @@ function UploadScreen() {
         'colorpicker.button.border': '0px',
         'colorpicker.title.color': '#000',
     };
+    // create dispatch variable for react-redux action
     const dispatch = useDispatch()
-    const [uploading, setUploading] = useState(false)
-
+    //  covert URI to blob
     const dataURItoBlob= (dataURI)=> {
         var byteString = atob(dataURI.split(",")[1]);
         var mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
@@ -104,75 +106,48 @@ function UploadScreen() {
         
         return new Blob([ab], { type: mimeString });
     }
-    
-    
-
-    
-
+    // image upload reducer
     const imageUpload = useSelector(state=>state.imageUpload)
-
     const {loading, success, imageDetails, error} = imageUpload
-
-    
-
-    
-
     useEffect(() => {
-
+        // select  download button from DOM
         var elements = document.getElementsByClassName("tui-image-editor-download-btn");
-
         if(elements[0]){
-            
-            
+            // remove  download button from DOM
             elements[0].parentNode.removeChild(elements[0]);
             elements[0].remove()
-
-            
-
-            
+            // add cutom button with function to upload edited image so server
             var parents = document.getElementsByClassName("tui-image-editor-header-buttons");
             let btn = document.createElement("button");
-            btn.innerHTML = "Click Me";
+            btn.innerHTML = "Upload";
             parents[0].appendChild(btn)
             btn.onclick=() =>{
                 const editorInstance = editorRef.current.getInstance();
                 const data = editorInstance.toDataURL();
-
-                
+                // convert dataURI to blob
                 var blob = dataURItoBlob(data);
+                // convert blob to image
                 const file = new File([blob], 'editedimage.jpeg', {
                 type: "image/jpeg",
                 lastModified: new Date(),
                 });
-                
+                // create formData and send to server 
                 const formData = new FormData()
                 formData.append('uploadedimage', file)
-                dispatch(uploadImage(formData))
-        
-            }
-
-            
+                dispatch(uploadImage(formData))        
+            }            
         }
             
     }, [dispatch, imageDetails])
-
-    
-
-    
-
-    
-    
-    
-
-    
 
   return (
     
         
                     <div className='d-flex mt-1 flex-column align-items-center'>
                         {loading?<Loader />: error? <Alert  className='mt-4 w-100' variant='danger'>{error}. Please reload the page and try again</Alert>: success?
-                            <Container>
-                                <Button className='mt-4' onClick={()=>dispatch({type:UPLOAD_IMAGE_RESET})} variant="primary">Upload New</Button>
+                            <Container className='d-flex flex-column'>
+                                <Alert  className='mt-4 w-100' variant='success'>Image Uploaded Successfully</Alert>
+                                <Button style={{width:'max-content'}} className='mt-4 ms-auto' onClick={()=>dispatch({type:UPLOAD_IMAGE_RESET})} variant="primary">Upload New</Button>
                                 <Image fluid className='preview-image' src={imageDetails.image} alt={imageDetails._id} />
                             </Container>
                             : 
