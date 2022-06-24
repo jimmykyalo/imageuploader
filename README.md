@@ -6,7 +6,7 @@
   </a>
 </p>
 
-> React with Django Image Editor using Toast UI and Pillow. Icludes saving to database and static files 
+> React with Django Image Editor using Toast UI and Pillow. Includes saving to database and static files 
 
 ### 🏠 [Homepage](https://github.com/jimmykyalo/imageuploader)
 
